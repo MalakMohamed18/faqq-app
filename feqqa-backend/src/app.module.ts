@@ -2,11 +2,12 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmConfig } from './config/database.config';
-import { UsersModule } from './modules/users/users.module';
-import { BusinessModule } from './modules/business/business.module';
 import { SubscriptionsModule } from './modules/subscriptions/subscriptions.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CommonModule } from './common/common.module';
+import { BusinessesModule } from './modules/businesses/businesses.module';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
 
 @Module({
   imports: [
@@ -20,12 +21,11 @@ import { CommonModule } from './common/common.module';
       useFactory: typeOrmConfig,
     }),
     CommonModule,
-    UsersModule,
-    BusinessModule,
+    BusinessesModule,
     SubscriptionsModule,
     AuthModule,
   ],
-  controllers: [],
-  providers: [],
+  controllers: [AppController],
+  providers: [AppService],
 })
 export class AppModule { }
