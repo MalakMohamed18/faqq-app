@@ -15,7 +15,6 @@ export async function executeTool(
 
   switch (toolName) {
     case "getTodaySales":
-      // عمل Type Cast للتأكد أن التايب سكريبت يعلم أنها تستقبل معاملاً واحداً فقط
       return await (tool as (date: string) => Promise<any>)(
         entities.date ?? new Date().toISOString().slice(0, 10)
       );
@@ -36,11 +35,27 @@ export async function executeTool(
       return await (tool as () => Promise<any>)();
 
     case "getMonthlyExpenses":
-      return await (tool as (period: string) => Promise<any>)(
-        entities.period ?? ""
-      );
+  return await (tool as (period: string) => Promise<any>)(
+    entities.period ?? ""
+  );
 
-    default:
-      throw new Error(`Unsupported tool: ${toolName}`);
+case "getDemandForecast":
+  return await (tool as (
+    product: string,
+    period: string | null
+  ) => Promise<any>)(
+    entities.product ?? "Unknown Product",
+    entities.period ?? null
+  );
+  case "getCashFlowForecast":
+  return await (tool as (
+    period: string | null
+  ) => Promise<any>)(
+    entities.period ?? null
+  );
+
+default:
+  throw new Error(`Unsupported tool: ${toolName}`);
+
   }
 }

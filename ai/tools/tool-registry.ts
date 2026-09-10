@@ -9,6 +9,8 @@ import {
   getMonthlyExpenses,
   getTopExpense,
   getBusinessInsight,
+  getDemandForecast,
+  getCashFlowForecast,
 } from "./feqqa-tools";
 
 export const TOOL_REGISTRY = {
@@ -22,6 +24,8 @@ export const TOOL_REGISTRY = {
   getMonthlyExpenses,
   getTopExpense,
   getBusinessInsight,
+  getDemandForecast,
+  getCashFlowForecast,
 } as const;
 
 export type ToolName = keyof typeof TOOL_REGISTRY;

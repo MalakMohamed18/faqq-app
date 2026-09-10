@@ -53,17 +53,15 @@ const TEST_CASES = [
 ];
 
 async function runTests() {
-  console.log("\n======================================");
-  console.log("🧪 FEQQA AI - INTENT TESTS");
-  console.log("======================================\n");
+  console.log(" FEQQA AI - INTENT TESTS");
+
 
   let passed = 0;
   let failed = 0;
 
   for (const test of TEST_CASES) {
-    console.log("--------------------------------------");
-    console.log(`🧪 ${test.name}`);
-    console.log(`👤 ${test.question}`);
+    console.log(` ${test.name}`);
+    console.log(` ${test.question}`);
 
     try {
       const result = await runFeqqaAI(
@@ -71,7 +69,7 @@ async function runTests() {
       );
 
       if (!result.success) {
-        console.log("❌ FAILED");
+        console.log("FAILED");
         console.log(
           "Reason:",
           result.message
@@ -82,34 +80,34 @@ async function runTests() {
       }
 
       console.log(
-        "🎯 Intent:",
+        " Intent:",
         result.intent.intent
       );
 
       console.log(
-        "📊 Confidence:",
+        " Confidence:",
         result.intent.confidence
       );
 
       console.log(
-        "🛠️ Tool:",
+        " Tool:",
         result.tool
       );
 
       console.log(
-        "📦 Data:",
+        " Data:",
         result.data
       );
 
       console.log(
-        "💬 Response:",
+        " Response:",
         result.response
       );
 
       passed++;
 
     } catch (error) {
-      console.log("❌ ERROR");
+      console.log(" ERROR");
 
       console.error(error);
 
@@ -117,17 +115,15 @@ async function runTests() {
     }
   }
 
-  console.log("\n======================================");
-  console.log("📊 TEST SUMMARY");
-  console.log("======================================");
+  console.log(" TEST SUMMARY");
 
-  console.log(`✅ Passed: ${passed}`);
-  console.log(`❌ Failed: ${failed}`);
+
+  console.log(` Passed: ${passed}`);
+  console.log(` Failed: ${failed}`);
   console.log(
-    `📌 Total: ${TEST_CASES.length}`
+    ` Total: ${TEST_CASES.length}`
   );
 
-  console.log("======================================\n");
 }
 
 runTests();

@@ -1,4 +1,4 @@
-import { extractTextFromImage } from "./ocr-extractor";
+import { extractTextFromImage } from "./image/ocr-extractor";
 
 async function test() {
   const imagePath = "./test-data/invoice.webp";
@@ -6,11 +6,10 @@ async function test() {
   try {
     const text = await extractTextFromImage(imagePath);
 
-    console.log("\n================ OCR RESULT ================\n");
+    console.log("\nOCR RESULT \n");
     console.log(text);
-    console.log("\n=============================================\n");
   } catch (error) {
-    console.error("❌ OCR Error:");
+    console.error(" OCR Error:");
     console.error(error);
   }
 }

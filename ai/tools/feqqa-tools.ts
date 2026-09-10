@@ -1,9 +1,5 @@
-// ========================================
-// Feqqa AI Tools
-// ========================================
-
-// ---------- Types ----------
-
+import { forecastDemand } from "../forecasting/demand-forecast";
+import { forecastCashFlow } from "../forecasting/cash-flow/cash-flow-forecast";
 export type SalesResult = {
   date: string;
   total_sales: number;
@@ -50,10 +46,6 @@ export type TopExpenseResult = {
   currency: string;
 };
 
-// ========================================
-// 1. Today's Sales
-// ========================================
-
 export async function getTodaySales(
   date: string
 ): Promise<SalesResult> {
@@ -65,9 +57,6 @@ export async function getTodaySales(
   };
 }
 
-// ========================================
-// 2. Weekly Sales
-// ========================================
 
 export async function getWeeklySales(
   startDate: string,
@@ -82,9 +71,6 @@ export async function getWeeklySales(
   };
 }
 
-// ========================================
-// 3. Top Product
-// ========================================
 
 export async function getTopProduct(): Promise<ProductResult> {
   return {
@@ -94,10 +80,6 @@ export async function getTopProduct(): Promise<ProductResult> {
     currency: "EGP",
   };
 }
-
-// ========================================
-// 4. Weekly Products
-// ========================================
 
 export async function getWeeklyProducts(): Promise<ProductResult[]> {
   return [
@@ -122,9 +104,6 @@ export async function getWeeklyProducts(): Promise<ProductResult[]> {
   ];
 }
 
-// ========================================
-// 5. Low Stock Products
-// ========================================
 
 export async function getLowStockProducts(): Promise<
   LowStockProduct[]
@@ -143,10 +122,6 @@ export async function getLowStockProducts(): Promise<
   ];
 }
 
-// ========================================
-// 6. Top Receivable
-// ========================================
-
 export async function getTopReceivable(): Promise<Receivable> {
   return {
     customer_name: "Ahmed Mohamed",
@@ -155,9 +130,6 @@ export async function getTopReceivable(): Promise<Receivable> {
   };
 }
 
-// ========================================
-// 7. All Receivables
-// ========================================
 
 export async function getReceivables(): Promise<Receivable[]> {
   return [
@@ -179,9 +151,6 @@ export async function getReceivables(): Promise<Receivable[]> {
   ];
 }
 
-// ========================================
-// 8. Monthly Expenses
-// ========================================
 
 export async function getMonthlyExpenses(
   month: string
@@ -193,9 +162,6 @@ export async function getMonthlyExpenses(
   };
 }
 
-// ========================================
-// 9. Top Expense
-// ========================================
 
 export async function getTopExpense(): Promise<TopExpenseResult> {
   return {
@@ -204,9 +170,6 @@ export async function getTopExpense(): Promise<TopExpenseResult> {
     currency: "EGP",
   };
 }
-// ========================================
-// 10. Business Insight
-// ========================================
 
 export async function getBusinessInsight() {
   return {
@@ -219,4 +182,76 @@ export async function getBusinessInsight() {
       "sales",
     ],
   };
+}
+export async function getDemandForecast(
+  product: string,
+  period: string | null = null
+) {
+  const sales = [
+    { date: "2026-08-25", quantity: 10 },
+    { date: "2026-08-26", quantity: 12 },
+    { date: "2026-08-27", quantity: 8 },
+    { date: "2026-08-28", quantity: 15 },
+    { date: "2026-08-29", quantity: 11 },
+    { date: "2026-08-30", quantity: 14 },
+    { date: "2026-08-31", quantity: 13 },
+  ];
+
+  const forecastDays =
+    period === "next_month" ? 30 : 7;
+
+  return forecastDemand(
+    product,
+    sales,
+    forecastDays
+  );
+}
+export async function getCashFlowForecast(
+  period: string | null = null
+) {
+  const cashFlow = [
+    {
+      date: "2026-08-25",
+      cash_in: 5000,
+      cash_out: 3000,
+    },
+    {
+      date: "2026-08-26",
+      cash_in: 5500,
+      cash_out: 3200,
+    },
+    {
+      date: "2026-08-27",
+      cash_in: 4800,
+      cash_out: 2800,
+    },
+    {
+      date: "2026-08-28",
+      cash_in: 6200,
+      cash_out: 3500,
+    },
+    {
+      date: "2026-08-29",
+      cash_in: 5100,
+      cash_out: 3100,
+    },
+    {
+      date: "2026-08-30",
+      cash_in: 5800,
+      cash_out: 3300,
+    },
+    {
+      date: "2026-08-31",
+      cash_in: 5400,
+      cash_out: 3000,
+    },
+  ];
+
+  const forecastDays =
+    period === "next_month" ? 30 : 7;
+
+  return forecastCashFlow(
+    cashFlow,
+    forecastDays
+  );
 }

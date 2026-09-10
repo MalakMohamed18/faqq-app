@@ -1,6 +1,4 @@
-// ========================================
 // Feqqa AI ↔ Backend Contracts
-// ========================================
 
 export type GetTodaySalesRequest = {
   date: string;
@@ -13,10 +11,6 @@ export type GetTodaySalesResponse = {
   currency: string;
 };
 
-
-// ========================================
-// Weekly Sales
-// ========================================
 
 export type GetWeeklySalesRequest = {
   start_date: string;
@@ -32,10 +26,6 @@ export type GetWeeklySalesResponse = {
 };
 
 
-// ========================================
-// Low Stock
-// ========================================
-
 export type GetLowStockResponse = {
   products: {
     product_name: string;
@@ -45,10 +35,6 @@ export type GetLowStockResponse = {
 };
 
 
-// ========================================
-// Receivables
-// ========================================
-
 export type GetReceivablesResponse = {
   customers: {
     customer_name: string;
@@ -57,10 +43,6 @@ export type GetReceivablesResponse = {
   }[];
 };
 
-
-// ========================================
-// Monthly Expenses
-// ========================================
 
 export type GetMonthlyExpensesRequest = {
   month: string;

@@ -1,20 +1,58 @@
 type ToolData = any;
 
+type Recommendation = {
+  type: string;
+  severity: "INFO" | "WARNING" | "CRITICAL";
+  title: string;
+  message: string;
+  action: string;
+};
+
 export async function generateResponse(
   userMessage: string,
   toolName: string,
-  toolData: unknown
+  toolData: unknown,
+  recommendations: Recommendation[] = []
 ): Promise<string> {
-  console.log("\n🧠 Generating Final Response...");
+
+  console.log("\n Generating Final Response...");
 
   const data = toolData as ToolData;
 
+  if (toolName === "getBusinessInsight") {
+
+    let response = `ملخص شغلك: ${data.insight}`;
+
+    if (recommendations.length > 0) {
+      response += "\n\n أهم التنبيهات والتوصيات:\n";
+
+      response += recommendations
+        .map((recommendation) => {
+          const icon =
+            recommendation.severity === "CRITICAL"
+              ? "🔴"
+              : recommendation.severity === "WARNING"
+              ? "🟠"
+              : "🟢";
+
+          return (
+            `${icon} ${recommendation.title}\n` +
+            `${recommendation.message}\n` +
+            ` ${recommendation.action}`
+          );
+        })
+        .join("\n\n");
+    }
+
+    return response;
+  }
+
   switch (toolName) {
     case "getTodaySales":
-      return `النهارده مبيعاتك ${data.total_sales} جنيه 💰`;
+      return `النهارده مبيعاتك ${data.total_sales} جنيه `;
 
     case "getWeeklySales":
-      return `مبيعاتك الأسبوع ده ${data.total_sales} جنيه 💰`;
+      return `مبيعاتك الأسبوع ده ${data.total_sales} جنيه `;
 
     case "getTopProduct":
       return `أكتر منتج اتباع هو ${data.product_name}، بإجمالي ${data.quantity_sold}.`;
@@ -36,7 +74,7 @@ export async function generateResponse(
 
     case "getLowStockProducts":
       if (!Array.isArray(data) || data.length === 0) {
-        return "مفيش منتجات قربت تخلص حاليًا ✅";
+        return "مفيش منتجات قربت تخلص حاليًا ";
       }
 
       return (
@@ -54,7 +92,7 @@ export async function generateResponse(
 
     case "getReceivables":
       if (!Array.isArray(data) || data.length === 0) {
-        return "مفيش عملاء عليهم فلوس حاليًا ✅";
+        return "مفيش عملاء عليهم فلوس حاليًا ";
       }
 
       return (
@@ -73,8 +111,18 @@ export async function generateResponse(
     case "getTopExpense":
       return `أكتر مصروف عندك هو ${data.expense_name} بـ ${data.amount} جنيه.`;
 
-    case "getBusinessInsight":
-      return `ملخص شغلك: ${data.insight}`;
+    case "getCashFlowForecast":
+      return (
+        `متوقع الأسبوع الجاي يدخل عندك حوالي ${Number(
+          data.total_predicted_inflow
+        ).toLocaleString("en-US")} جنيه، ` +
+        `ويخرج حوالي ${Number(
+          data.total_predicted_outflow
+        ).toLocaleString("en-US")} جنيه.\n` +
+        `يعني صافي الكاش المتوقع حوالي ${Number(
+          data.total_predicted_net_cash_flow
+        ).toLocaleString("en-US")} جنيه `
+      );
 
     default:
       return "مش قادر أطلعلك النتيجة دلوقتي.";

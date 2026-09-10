@@ -4,9 +4,8 @@ async function test() {
   const userMessage =
     "أنا بعت كام النهارده؟";
 
-  console.log("================================");
-  console.log("👤 USER");
-  console.log("================================");
+  console.log(" USER");
+
 
   console.log(userMessage);
 
@@ -14,31 +13,23 @@ async function test() {
     const result =
       await runFeqqaAI(userMessage);
 
-    console.log(
-      "\n================================"
-    );
-    console.log("🤖 FEQQA AI");
-    console.log(
-      "================================"
-    );
+
+    console.log(" FEQQA AI");
+
 
     console.dir(result, {
       depth: null,
     });
 
-    console.log(
-      "\n================================"
-    );
-    console.log("💬 FINAL ANSWER");
-    console.log(
-      "================================"
-    );
+
+    console.log(" FINAL ANSWER");
+
 
     console.log(result.response);
 
   } catch (error) {
     console.error(
-      "\n❌ Pipeline Error:"
+      "\n Pipeline Error:"
     );
 
     console.error(error);

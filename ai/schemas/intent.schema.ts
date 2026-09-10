@@ -1,20 +1,20 @@
 import { z } from "zod";
 
 export const IntentSchema = z.object({
-  intent: z
-    .enum([
-      "GET_TODAY_SALES",
-      "GET_WEEKLY_SALES",
-      "GET_TOP_PRODUCT",
-      "GET_WEEKLY_PRODUCTS",
-      "GET_LOW_STOCK",
-      "GET_TOP_RECEIVABLE",
-      "GET_RECEIVABLES",
-      "GET_MONTHLY_EXPENSES",
-      "GET_TOP_EXPENSE",
-      "GET_BUSINESS_INSIGHT",
-    ])
-    .nullable(),
+ intent: z.enum([
+  "GET_TODAY_SALES",
+  "GET_WEEKLY_SALES",
+  "GET_TOP_PRODUCT",
+  "GET_WEEKLY_PRODUCTS",
+  "GET_LOW_STOCK",
+  "GET_TOP_RECEIVABLE",
+  "GET_RECEIVABLES",
+  "GET_MONTHLY_EXPENSES",
+  "GET_TOP_EXPENSE",
+  "GET_BUSINESS_INSIGHT",
+  "GET_DEMAND_FORECAST",
+  "GET_CASH_FLOW_FORECAST",
+]).nullable(),
 
   entities: z.object({
     date: z.string().nullable(),
