@@ -53,6 +53,8 @@ case "getDemandForecast":
   ) => Promise<any>)(
     entities.period ?? null
   );
+  case "getBusinessHealthScore":
+  return await (tool as () => Promise<any>)();
 
 default:
   throw new Error(`Unsupported tool: ${toolName}`);

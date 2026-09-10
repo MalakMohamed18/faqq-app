@@ -2,7 +2,7 @@ import { runFeqqaAI } from "./faqqa-ai";
 
 async function test() {
   const userMessage =
-    "أنا بعت كام النهارده؟";
+   "قولي الـ health score بتاع البيزنس عندي وحالة البيزنس إيه؟";
 
   console.log(" USER");
 

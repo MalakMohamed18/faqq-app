@@ -11,6 +11,7 @@ import {
   getBusinessInsight,
   getDemandForecast,
   getCashFlowForecast,
+  getBusinessHealthScore,
 } from "./feqqa-tools";
 
 export const TOOL_REGISTRY = {
@@ -26,6 +27,7 @@ export const TOOL_REGISTRY = {
   getBusinessInsight,
   getDemandForecast,
   getCashFlowForecast,
+  getBusinessHealthScore,
 } as const;
 
 export type ToolName = keyof typeof TOOL_REGISTRY;

@@ -14,6 +14,7 @@ export const IntentSchema = z.object({
   "GET_BUSINESS_INSIGHT",
   "GET_DEMAND_FORECAST",
   "GET_CASH_FLOW_FORECAST",
+  "GET_BUSINESS_HEALTH_SCORE",
 ]).nullable(),
 
   entities: z.object({
