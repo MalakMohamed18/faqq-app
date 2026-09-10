@@ -1,10 +1,10 @@
-// src/modules/businesses/businesses.service.ts
 import { Injectable, ConflictException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Business } from './entities/business.entity';
 import { RegisterDto } from '../auth/dtos/register.dto';
 import { HashingService } from '../../common/services/hashing.service';
+import { OnboardingStatus } from 'src/utils/enums';
 
 @Injectable()
 export class BusinessesService {
@@ -16,10 +16,19 @@ export class BusinessesService {
 
     /**
      * Find a business by phone number or email.
+     * If only one parameter is provided, it checks both fields against that single input value.
      */
-    public async findByPhoneOrEmail(phone: string, email?: string): Promise<Business | null> {
+    public async findByPhoneOrEmail(identifier: string, secondIdentifier?: string): Promise<Business | null> {
+        const term1 = identifier;
+        const term2 = secondIdentifier || identifier;
+
         return this.businessesRepository.findOne({
-            where: email ? [{ phone }, { email }] : [{ phone }],
+            where: [
+                { phone: term1 },
+                { email: term1 },
+                { phone: term2 },
+                { email: term2 },
+            ],
         });
     }
 
@@ -27,14 +36,14 @@ export class BusinessesService {
      * Create a new business account with the provided registration data and optional OTP data.
      */
     public async createBusiness(
-        registerDto: RegisterDto, 
+        registerDto: RegisterDto,
         otpData?: { otp: string; expires: Date }
     ): Promise<Business> {
         const { email, phone, password, ...rest } = registerDto;
 
         const existingBusiness = await this.findByPhoneOrEmail(phone, email);
         if (existingBusiness) {
-            throw new ConflictException('حساب التجارة موجود بالفعل بالبريد أو الهاتف المستخدَم');
+            throw new ConflictException('A business account already exists for the email or phone number used');
         }
 
         const passwordHash = await this.hashingService.hash(password);
@@ -52,24 +61,51 @@ export class BusinessesService {
     }
 
     /**
-     * Mark the phone number of a business as verified and clear the OTP and expiration fields.
+     * Update OTP code and expiration time for a specific business.
      */
-    public async markPhoneAsVerified(businessId: string): Promise<void> {
+    public async updateOtp(businessId: string, otp: string, expires: Date): Promise<void> {
         const result = await this.businessesRepository.update(businessId, {
+            phone_verification_otp: otp,
+            phone_verification_expires: expires,
+        });
+
+        if (result.affected === 0) {
+            throw new NotFoundException('Account does not exist');
+        }
+    }
+
+    /**
+     * Mark the phone number of a business as verified and clear the OTP and expiration fields.
+     * Move to the next step is Payment Step
+     */
+    async markPhoneAsVerified(businessId: string) {
+        await this.businessesRepository.update(businessId, {
             is_phone_verified: true,
             phone_verification_otp: null,
             phone_verification_expires: null,
         });
 
-        if (result.affected === 0) {
-            throw new NotFoundException('الحساب غير موجود');
-        }
+        await this.updateOnboardingStatus(businessId, OnboardingStatus.SELECT_PLAN)
+        return this.findById(businessId);
     }
 
+    /**
+     * This Function use while user create account
+     */
+    async updateOnboardingStatus(businessId: string, status: OnboardingStatus) {
+        await this.businessesRepository.update(businessId, {
+            onboarding_status: status,
+        });
+        return this.findById(businessId);
+    }
+
+    /**
+     * Find a business by its ID.
+     */
     public async findById(businessId: string): Promise<Business> {
         const business = await this.businessesRepository.findOne({ where: { id: businessId } });
         if (!business) {
-            throw new NotFoundException('الحساب غير موجود');
+            throw new NotFoundException('Account does not exist');
         }
         return business;
     }

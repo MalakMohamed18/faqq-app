@@ -1,9 +1,13 @@
-import { Injectable, BadRequestException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, BadRequestException, UnauthorizedException, ForbiddenException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 import { BusinessesService } from '../businesses/businesses.service';
 import { RegisterDto } from './dtos/register.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { Business } from '../businesses/entities/business.entity';
+import { LoginDto } from './dtos/login.dto';
+import { OnboardingStatus } from 'src/utils/enums';
+import { JWTPayloadType } from 'src/utils/types';
 
 @Injectable()
 export class AuthService {
@@ -25,25 +29,52 @@ export class AuthService {
         });
 
         return {
-            message: 'تم إنشاء الحساب بنجاح، يرجى تفعيل رقم الهاتف',
+            message: 'Account created successfully. Please activate your phone number',
             business_id: business.id,
             phone: business.phone,
             dev_otp: otp,
         };
     }
 
+    public async login(loginDto: LoginDto) {
+        const { email, password } = loginDto;
+        const business = await this.businessesService.findByPhoneOrEmail(email);
+
+        if (!business || !business.password_hash) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        const isPasswordValid = await bcrypt.compare(password, business.password_hash);
+        if (!isPasswordValid) {
+            throw new UnauthorizedException('Invalid credentials');
+        }
+
+        if (!business.is_phone_verified) {
+            const newOtp = this.generateOtp();
+            const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+
+            await this.businessesService.updateOtp(business.id, newOtp, otpExpires);
+
+            throw new ForbiddenException({
+                statusCode: 403,
+                message: 'Account phone number is not verified. A new OTP has been generated.',
+                code: 'PHONE_NOT_VERIFIED',
+                dev_otp: newOtp,
+            });
+        }
+
+        return this.generateAuthResponse(business);
+    }
+
     public async verifyPhone(verifyOtpDto: VerifyOtpDto) {
-        // Find the business by phone number and validate the OTP
         const { phone, otp } = verifyOtpDto;
         const business = await this.businessesService.findByPhoneOrEmail(phone);
 
-        // Validate the OTP process
         this.validateOtpProcess(business, otp);
 
-        // Mark the phone as verified and clear the OTP and expiration fields
-        await this.businessesService.markPhoneAsVerified(business.id);
+        const updatedBusiness = await this.businessesService.markPhoneAsVerified(business.id);
 
-        return this.generateAuthResponse(business);
+        return this.generateAuthResponse(updatedBusiness);
     }
 
     private generateOtp(): string {
@@ -67,7 +98,13 @@ export class AuthService {
     }
 
     private generateAuthResponse(business: Business) {
-        const payload = { sub: business.id, email: business.email };
+        const payload: JWTPayloadType = {
+            sub: business.id,
+            email: business.email,
+            role: business.role,
+            onboardingStatus: business.onboarding_status
+        };
+
         const accessToken = this.jwtService.sign(payload);
 
         return {
@@ -77,6 +114,7 @@ export class AuthService {
                 name: business.business_name,
                 email: business.email,
                 phone: business.phone,
+                onboarding_status: business.onboarding_status,
             },
         };
     }

@@ -8,6 +8,7 @@ import { CommonModule } from './common/common.module';
 import { BusinessesModule } from './modules/businesses/businesses.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { PlansModule } from './modules/plans/plans.module';
 
 @Module({
   imports: [
@@ -21,9 +22,10 @@ import { AppService } from './app.service';
       useFactory: typeOrmConfig,
     }),
     CommonModule,
+    AuthModule,
     BusinessesModule,
     SubscriptionsModule,
-    AuthModule,
+    PlansModule
   ],
   controllers: [AppController],
   providers: [AppService],

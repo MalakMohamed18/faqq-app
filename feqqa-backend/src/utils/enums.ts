@@ -4,6 +4,13 @@ export enum Role {
   SUPER_ADMIN = 'SUPER_ADMIN',
 }
 
+export enum OnboardingStatus {
+  VERIFY_PHONE = 'VERIFY_PHONE',
+  SELECT_PLAN = 'SELECT_PLAN',
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
+  COMPLETED = 'COMPLETED',
+}
+
 export enum PaymentMethod {
   CASH = 'CASH',
   CARD = 'CARD',
@@ -12,9 +19,10 @@ export enum PaymentMethod {
 }
 
 export enum SubscriptionStatus {
-  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
   ACTIVE = 'ACTIVE',
   EXPIRED = 'EXPIRED',
+  CANCELLED = 'CANCELLED',
+  PENDING_PAYMENT = 'PENDING_PAYMENT',
 }
 
 export enum PackageType {

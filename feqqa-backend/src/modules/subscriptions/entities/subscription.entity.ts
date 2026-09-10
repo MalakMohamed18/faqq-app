@@ -1,39 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
-// import { Business } from '../../business/entities/business.entity';
-import { PaymentMethod, SubscriptionStatus } from '../../../utils/enums';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, CreateDateColumn } from 'typeorm';
+import { Business } from '../../businesses/entities/business.entity';
+import { Plan } from '../../plans/entities/plan.entity';
+import { SubscriptionStatus } from 'src/utils/enums';
 
 @Entity('subscriptions')
 export class Subscription {
     @PrimaryGeneratedColumn('uuid')
     id: string;
 
-    @Column()
-    business_id: string;
+    @ManyToOne(() => Business, (b) => b.subscriptions, { onDelete: 'CASCADE' })
+    @JoinColumn({ name: 'business_id' })
+    business: Business;
 
-    @Column()
-    package_name: string;
+    @ManyToOne(() => Plan)
+    @JoinColumn({ name: 'plan_id' })
+    plan: Plan;
 
-    @Column({ type: 'int' })
-    duration_months: number;
-
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
-    price: number;
-
-    @Column({ type: 'enum', enum: PaymentMethod })
-    payment_method: PaymentMethod;
-
-    @Column({ type: 'timestamp', nullable: true })
-    start_date: Date;
-
-    @Column({ type: 'timestamp', nullable: true })
-    end_date: Date;
-
-    @Column({ type: 'enum', enum: SubscriptionStatus, default: SubscriptionStatus.PENDING_VERIFICATION })
+    @Column({ type: 'enum', enum: SubscriptionStatus, default: SubscriptionStatus.PENDING_PAYMENT })
     status: SubscriptionStatus;
 
-    // @ManyToOne(() => Business, { onDelete: 'CASCADE' })
-    // @JoinColumn({ name: 'business_id' })
-    // business: Business;
+    @Column({ type: 'timestamp' })
+    starts_at: Date;
+
+    @Column({ type: 'timestamp' })
+    expires_at: Date;
 
     @CreateDateColumn()
     created_at: Date;

@@ -3,6 +3,7 @@ import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
+import { LoginDto } from './dtos/login.dto';
 
 @ApiTags('Auth')
 @Controller('api/auth')
@@ -28,5 +29,16 @@ export class AuthController {
     @ApiResponse({ status: 400, description: 'Invalid or expired OTP code' })
     async verifyPhone(@Body() verifyOtpDto: VerifyOtpDto) {
         return this.authService.verifyPhone(verifyOtpDto);
+    }
+
+    // ~/api/auth/login
+    @Post('login')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Log in to business account' })
+    @ApiResponse({ status: 200, description: 'Successfully authenticated and token returned' })
+    @ApiResponse({ status: 400, description: 'Invalid input payload' })
+    @ApiResponse({ status: 401, description: 'Invalid credentials or unverified account' })
+    async login(@Body() loginDto: LoginDto) {
+        return this.authService.login(loginDto);
     }
 }
