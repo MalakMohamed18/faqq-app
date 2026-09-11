@@ -57,7 +57,7 @@ export class SubscriptionsService {
         });
     }
 
-    // 3. Read Current (جلب الاشتراك الحالي للنشاط التجاري)
+    // 3. Read Current
     public async getBusinessActiveSubscription(businessId: string): Promise<Subscription> {
         const subscription = await this.subscriptionRepository.findOne({
             where: {

@@ -6,7 +6,6 @@ import {
     Delete,
     Body,
     Param,
-    Req,
     UseGuards,
     HttpCode,
     HttpStatus,
@@ -17,6 +16,8 @@ import { SubscriptionsService } from './subscriptions.service';
 // import { UpdateSubscriptionStatusDto } from './dtos/update-subscription-status.dto';
 import { SelectPlanDto } from './dto/select-plan.dto';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import type { JWTPayloadType } from 'src/utils/types';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 
 @ApiTags('Subscriptions')
 @ApiBearerAuth()
@@ -30,15 +31,15 @@ export class SubscriptionsController {
     @HttpCode(HttpStatus.OK)
     @ApiOperation({ summary: 'Select a subscription plan for business onboarding' })
     @ApiResponse({ status: 200, description: 'Plan selected or activated successfully' })
-    async selectPlan(@Req() req, @Body() dto: SelectPlanDto) {
-        return this.subscriptionsService.selectPlan(req.user.sub, dto.planId);
+    async selectPlan(@CurrentUser() user: JWTPayloadType, @Body() dto: SelectPlanDto) {
+        return this.subscriptionsService.selectPlan(user.sub, dto.planId);
     }
 
     // GET: ~/api/subscriptions/me
     @Get('me')
     @ApiOperation({ summary: 'Get current active subscription for logged-in business' })
-    async getMySubscription(@Req() req) {
-        return this.subscriptionsService.getBusinessActiveSubscription(req.user.sub);
+    async getMySubscription(@CurrentUser() user: JWTPayloadType) {
+        return this.subscriptionsService.getBusinessActiveSubscription(user.sub);
     }
 
     // GET: api/subscriptions
@@ -55,7 +56,7 @@ export class SubscriptionsController {
         return this.subscriptionsService.getSubscriptionById(id);
     }
 
-    // PATCH: api/subscriptions/:id/status (تحديث حالة الاشتراك)
+    // PATCH: api/subscriptions/:id/status
     // TODO
     // @Patch(':id/status')
     // @ApiOperation({ summary: 'Update subscription status (Admin / Webhook)' })
