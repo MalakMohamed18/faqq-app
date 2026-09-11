@@ -13,6 +13,7 @@ const INTENT_TO_TOOL = {
   GET_BUSINESS_INSIGHT: "getBusinessInsight",
   GET_DEMAND_FORECAST: "getDemandForecast",
   GET_CASH_FLOW_FORECAST: "getCashFlowForecast",
+  GET_BUSINESS_HEALTH_SCORE: "getBusinessHealthScore",
 } as const;
 
 export function routeTool(intentResult: IntentResult) {

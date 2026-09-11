@@ -1,5 +1,6 @@
 import { forecastDemand } from "../forecasting/demand-forecast";
 import { forecastCashFlow } from "../forecasting/cash-flow/cash-flow-forecast";
+import { calculateBusinessHealthScore } from "../health-score/business-health-score";
 export type SalesResult = {
   date: string;
   total_sales: number;
@@ -175,12 +176,42 @@ export async function getBusinessInsight() {
   return {
     insight:
       "المبيعات مستقرة لكن فيه منتجات قربت تخلص ومبالغ متأخرة عند العملاء.",
+
     priority: "medium",
+
     related_areas: [
       "inventory",
       "receivables",
       "sales",
     ],
+
+    // Data used by Recommendation Engine
+    lowStockProducts: [
+      {
+        product_name: "Pepsi Can",
+        current_stock: 8,
+        minimum_stock: 20,
+      },
+      {
+        product_name: "Chips",
+        current_stock: 5,
+        minimum_stock: 15,
+      },
+    ],
+
+    expenses: {
+      current: 18500,
+      previous: 14000,
+    },
+
+    cashFlow: {
+      predicted_net_cash_flow: 15900.01,
+    },
+
+    sales: {
+      current: 52500,
+      previous: 45000,
+    },
   };
 }
 export async function getDemandForecast(
@@ -254,4 +285,40 @@ export async function getCashFlowForecast(
     cashFlow,
     forecastDays
   );
+}
+export async function getBusinessHealthScore() {
+  const businessData = {
+    sales: {
+      current: 52500,
+      previous: 45000,
+    },
+
+    lowStockProducts: [
+      {
+        product_name: "Pepsi Can",
+        current_stock: 8,
+        minimum_stock: 20,
+      },
+      {
+        product_name: "Chips",
+        current_stock: 5,
+        minimum_stock: 15,
+      },
+    ],
+
+    expenses: {
+      current: 18500,
+      previous: 14000,
+    },
+
+    cashFlow: {
+      predicted_net_cash_flow: 15900.01,
+    },
+
+    receivables: {
+      total: 8000,
+    },
+  };
+
+  return calculateBusinessHealthScore(businessData);
 }

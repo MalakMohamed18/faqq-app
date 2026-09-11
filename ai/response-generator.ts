@@ -123,7 +123,40 @@ export async function generateResponse(
           data.total_predicted_net_cash_flow
         ).toLocaleString("en-US")} جنيه `
       );
+    case "getBusinessHealthScore": {
+  const statusMap: Record<string, string> = {
+    EXCELLENT: "ممتاز جدًا 🟢",
+    GOOD: "كويس 🟢",
+    FAIR: "متوسط 🟠",
+    POOR: "محتاج اهتمام 🔴",
+    CRITICAL: "حرج جدًا 🔴",
+  };
 
+  let response = `🏥 حالة البيزنس: ${
+    statusMap[data.status] ?? data.status
+  }\n`;
+
+  response += `📊 الـ Health Score: ${data.score}/100\n\n`;
+
+  response += `📈 التقييم بالتفصيل:\n`;
+  response += `• المبيعات: ${data.breakdown.sales}/100\n`;
+  response += `• المخزون: ${data.breakdown.inventory}/100\n`;
+  response += `• المصاريف: ${data.breakdown.expenses}/100\n`;
+  response += `• التدفق النقدي: ${data.breakdown.cashFlow}/100\n`;
+  response += `• العملاء المستحق عليهم: ${data.breakdown.receivables}/100\n`;
+
+  if (data.strengths?.length > 0) {
+    response += `\n💪 نقاط القوة:\n`;
+    response += data.strengths.map((item: string) => `• ${item}`).join("\n");
+  }
+
+  if (data.risks?.length > 0) {
+    response += `\n\n⚠️ محتاج تركز على:\n`;
+    response += data.risks.map((item: string) => `• ${item}`).join("\n");
+  }
+
+  return response;
+}
     default:
       return "مش قادر أطلعلك النتيجة دلوقتي.";
   }
