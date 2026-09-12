@@ -12,6 +12,8 @@ import { PlansModule } from './modules/plans/plans.module';
 import { SalesModule } from './modules/sales/sales.module';
 import { ProductsModule } from './modules/products/products.module';
 import { CustomersModule } from './modules/customers/customers.module';
+import { ExpensesModule } from './modules/expenses/expenses.module';
+import { AiDataModule } from './modules/ai-data/ai-data.module';
 
 @Module({
   imports: [
@@ -31,7 +33,9 @@ import { CustomersModule } from './modules/customers/customers.module';
     PlansModule,
     SalesModule,
     ProductsModule,
-    CustomersModule
+    CustomersModule,
+    ExpensesModule,
+    AiDataModule
   ],
   controllers: [AppController],
   providers: [AppService],
