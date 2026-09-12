@@ -14,6 +14,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { ExpensesModule } from './modules/expenses/expenses.module';
 import { AiDataModule } from './modules/ai-data/ai-data.module';
+import { UploadsModule } from './modules/uploads/uploads.module';
 
 @Module({
   imports: [
@@ -35,7 +36,8 @@ import { AiDataModule } from './modules/ai-data/ai-data.module';
     ProductsModule,
     CustomersModule,
     ExpensesModule,
-    AiDataModule
+    AiDataModule,
+    UploadsModule
   ],
   controllers: [AppController],
   providers: [AppService],
