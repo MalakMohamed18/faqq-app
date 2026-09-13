@@ -53,8 +53,8 @@ export class BusinessesService {
             email,
             phone,
             password_hash: passwordHash,
-            phone_verification_otp: otpData?.otp,
-            phone_verification_expires: otpData?.expires,
+            email_verification_otp: otpData?.otp,
+            email_verification_expires: otpData?.expires,
         });
 
         return this.businessesRepository.save(newBusiness);
@@ -65,8 +65,8 @@ export class BusinessesService {
      */
     public async updateOtp(businessId: string, otp: string, expires: Date): Promise<void> {
         const result = await this.businessesRepository.update(businessId, {
-            phone_verification_otp: otp,
-            phone_verification_expires: expires,
+            email_verification_otp: otp,
+            email_verification_expires: expires,
         });
 
         if (result.affected === 0) {
@@ -78,11 +78,11 @@ export class BusinessesService {
      * Mark the phone number of a business as verified and clear the OTP and expiration fields.
      * Move to the next step is Payment Step
      */
-    async markPhoneAsVerified(businessId: string) {
+    async markEmailAsVerified(businessId: string) {
         await this.businessesRepository.update(businessId, {
-            is_phone_verified: true,
-            phone_verification_otp: null,
-            phone_verification_expires: null,
+            is_email_verified: true,
+            email_verification_otp: null,
+            email_verification_expires: null,
         });
 
         await this.updateOnboardingStatus(businessId, OnboardingStatus.SELECT_PLAN)

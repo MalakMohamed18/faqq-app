@@ -5,12 +5,14 @@ import { AuthService } from './auth.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Business } from '../businesses/entities/business.entity';
 import { BusinessesModule } from '../businesses/businesses.module';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Business]),
         CommonModule,
         BusinessesModule,
+        NotificationsModule
     ],
     providers: [AuthService],
     controllers: [AuthController],

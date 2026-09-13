@@ -21,14 +21,14 @@ export class AuthController {
         return this.authService.register(registerDto);
     }
 
-    // ~/api/auth/verify-phone
-    @Post('verify-phone')
+    // ~/api/auth/verify-email
+    @Post('verify-email')
     @HttpCode(HttpStatus.OK)
-    @ApiOperation({ summary: 'Verify OTP code and activate business account' })
+    @ApiOperation({ summary: 'Verify OTP code via email and activate business account' })
     @ApiResponse({ status: 200, description: 'Account verified successfully and access token returned' })
     @ApiResponse({ status: 400, description: 'Invalid or expired OTP code' })
-    async verifyPhone(@Body() verifyOtpDto: VerifyOtpDto) {
-        return this.authService.verifyPhone(verifyOtpDto);
+    async verifyEmail(@Body() verifyOtpDto: VerifyOtpDto) {
+        return this.authService.verifyEmail(verifyOtpDto);
     }
 
     // ~/api/auth/login

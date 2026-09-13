@@ -5,7 +5,7 @@ export enum Role {
 }
 
 export enum OnboardingStatus {
-  VERIFY_PHONE = 'VERIFY_PHONE',
+  VERIFY_EMAIL = 'VERIFY_EMAIL',
   SELECT_PLAN = 'SELECT_PLAN',
   PENDING_PAYMENT = 'PENDING_PAYMENT',
   COMPLETED = 'COMPLETED',

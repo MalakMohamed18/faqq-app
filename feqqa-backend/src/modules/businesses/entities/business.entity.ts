@@ -32,15 +32,15 @@ export class Business {
     password_hash: string;
 
     @Column({ default: false })
-    is_phone_verified: boolean;
+    is_email_verified: boolean;
 
     @Column({ nullable: true })
-    phone_verification_otp: string;
+    email_verification_otp: string;
 
     @Column({ type: 'timestamp', nullable: true })
-    phone_verification_expires: Date;
+    email_verification_expires: Date;
 
-    @Column({ type: 'enum', enum: OnboardingStatus, default: OnboardingStatus.VERIFY_PHONE })
+    @Column({ type: 'enum', enum: OnboardingStatus, default: OnboardingStatus.VERIFY_EMAIL })
     onboarding_status: OnboardingStatus;
 
     @OneToMany(() => Subscription, (subscription) => subscription.business)

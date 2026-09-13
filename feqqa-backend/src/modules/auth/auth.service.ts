@@ -6,14 +6,15 @@ import { RegisterDto } from './dtos/register.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { Business } from '../businesses/entities/business.entity';
 import { LoginDto } from './dtos/login.dto';
-import { OnboardingStatus } from 'src/utils/enums';
 import { JWTPayloadType } from 'src/utils/types';
+import { EmailService } from '../notifications/email.service';
 
 @Injectable()
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
         private readonly businessesService: BusinessesService,
+        private readonly emailService: EmailService
     ) { }
 
 
@@ -28,10 +29,13 @@ export class AuthService {
             expires: otpExpires,
         });
 
+        // Send OTP process
+        await this.emailService.sendOtpEmail(business.email, otp);
+
         return {
-            message: 'Account created successfully. Please activate your phone number',
+            message: 'Account created successfully. Please activate your email',
             business_id: business.id,
-            phone: business.phone,
+            email: business.email,
             dev_otp: otp,
         };
     }
@@ -49,16 +53,20 @@ export class AuthService {
             throw new UnauthorizedException('Invalid credentials');
         }
 
-        if (!business.is_phone_verified) {
+        if (!business.is_email_verified) {
             const newOtp = this.generateOtp();
             const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
 
+            // Update OTP
             await this.businessesService.updateOtp(business.id, newOtp, otpExpires);
+
+            // Send new OTP
+            await this.emailService.sendOtpEmail(business.email, newOtp);
 
             throw new ForbiddenException({
                 statusCode: 403,
-                message: 'Account phone number is not verified. A new OTP has been generated.',
-                code: 'PHONE_NOT_VERIFIED',
+                message: 'Account email is not verified. A new OTP has been generated.',
+                code: 'EMIAL_NOT_VERIFIED',
                 dev_otp: newOtp,
             });
         }
@@ -66,13 +74,13 @@ export class AuthService {
         return this.generateAuthResponse(business);
     }
 
-    public async verifyPhone(verifyOtpDto: VerifyOtpDto) {
-        const { phone, otp } = verifyOtpDto;
-        const business = await this.businessesService.findByPhoneOrEmail(phone);
+    public async verifyEmail(verifyOtpDto: VerifyOtpDto) {
+        const { email, otp } = verifyOtpDto;
+        const business = await this.businessesService.findByPhoneOrEmail(email);
 
         this.validateOtpProcess(business, otp);
 
-        const updatedBusiness = await this.businessesService.markPhoneAsVerified(business.id);
+        const updatedBusiness = await this.businessesService.markEmailAsVerified(business.id);
 
         return this.generateAuthResponse(updatedBusiness);
     }
@@ -86,13 +94,13 @@ export class AuthService {
             throw new BadRequestException('بيانات التفعيل غير صحيحة');
         }
 
-        if (business.is_phone_verified) {
+        if (business.is_email_verified) {
             throw new BadRequestException('تم التفعيل بالفعل مسبقاً');
         }
 
         // Check if the OTP matches and is not expired
-        const isExpired = new Date() > new Date(business.phone_verification_expires);
-        if (business.phone_verification_otp !== otp || isExpired) {
+        const isExpired = new Date() > new Date(business.email_verification_expires);
+        if (business.email_verification_otp !== otp || isExpired) {
             throw new BadRequestException('رمز التحقق غير صحيح أو انتهت صلاحيته');
         }
     }
