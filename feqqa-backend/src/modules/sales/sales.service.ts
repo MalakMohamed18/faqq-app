@@ -19,7 +19,7 @@ import { MovementType } from 'src/utils/enums';
 export class SalesService {
   constructor(
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
 
   /**
    * Create a new sale transaction,
@@ -270,6 +270,73 @@ export class SalesService {
         todaySales.length,
 
       currency: 'EGP',
+    };
+  }
+
+  /**
+   * Get Sales Dashboard Analytics (Top Products, Categories, Total Revenue)
+   */
+  public async getSalesDashboard(businessId: string) {
+    const totalSalesResult = await this.dataSource.getRepository(Sale)
+      .createQueryBuilder('sale')
+      .where('sale.business_id = :businessId', { businessId })
+      .select('SUM(sale.total_amount)', 'total')
+      .getRawOne();
+
+    const totalSalesAmount = Number(totalSalesResult.total) || 0;
+
+    const topProducts = await this.dataSource.getRepository(SaleItem)
+      .createQueryBuilder('item')
+      .leftJoinAndSelect('item.product', 'product')
+      .leftJoin('item.sale', 'sale')
+      .where('sale.business_id = :businessId', { businessId })
+      .select([
+        'product.id AS product_id',
+        'product.name AS product_name',
+        'product.image_url AS image_url',
+        'SUM(item.quantity) AS total_quantity_sold',
+        'SUM(item.total_price) AS total_revenue'
+      ])
+      .groupBy('product.id')
+      .orderBy('total_quantity_sold', 'DESC')
+      .limit(3)
+      .getRawMany();
+
+    const categorySales = await this.dataSource.getRepository(SaleItem)
+      .createQueryBuilder('item')
+      .leftJoin('item.product', 'product')
+      .leftJoin('item.sale', 'sale')
+      .where('sale.business_id = :businessId', { businessId })
+      .andWhere('product.category IS NOT NULL')
+      .select([
+        'product.category AS category_name',
+        'SUM(item.total_price) AS category_revenue'
+      ])
+      .groupBy('product.category')
+      .orderBy('category_revenue', 'DESC')
+      .getRawMany();
+
+    const totalInvoices = await this.dataSource.getRepository(Sale).count({
+      where: { business: { id: businessId } }
+    });
+
+    const averageInvoice = totalInvoices > 0 ? (totalSalesAmount / totalInvoices).toFixed(2) : 0;
+
+    return {
+      total_sales: totalSalesAmount,
+      total_orders: totalInvoices,
+      average_order_value: Number(averageInvoice),
+      top_products: topProducts.map(tp => ({
+        id: tp.product_id,
+        name: tp.product_name,
+        image: tp.image_url,
+        quantity_sold: Number(tp.total_quantity_sold),
+        revenue: Number(tp.total_revenue)
+      })),
+      sales_by_category: categorySales.map(cs => ({
+        category: cs.category_name,
+        revenue: Number(cs.category_revenue)
+      }))
     };
   }
 }

@@ -20,10 +20,10 @@ export class ProductsService {
     /**
      * Create a new product for a specific business
      */
-    async createProduct(businessId: string, dto: CreateProductDto) {
+    async createProduct(business_id: string, dto: CreateProductDto) {
         const product = this.productRepo.create({
             ...dto,
-            business: { id: businessId },
+            business: { id: business_id },
         });
 
         const savedProduct = await this.productRepo.save(product);
@@ -45,9 +45,9 @@ export class ProductsService {
     /**
      * Get all products for a business with optional category filter
      */
-    async getProducts(businessId: string, filters?: { category?: string }) {
+    async getProducts(business_id: string, filters?: { category?: string }) {
         const query = this.productRepo.createQueryBuilder('product')
-            .where('product.business_id = :businessId', { businessId });
+            .where('product.business_id = :business_id', { business_id });
 
         if (filters?.category) {
             query.andWhere('product.category = :category', { category: filters.category });
@@ -59,10 +59,10 @@ export class ProductsService {
     /**
      * Get low stock products (current stock <= minimum stock)
      */
-    async getLowStockProducts(businessId: string) {
+    async getLowStockProducts(business_id: string) {
         return this.productRepo
             .createQueryBuilder('product')
-            .where('product.business_id = :businessId', { businessId })
+            .where('product.business_id = :business_id', { business_id })
             .andWhere('product.current_stock <= product.minimum_stock')
             .getMany();
     }
@@ -129,5 +129,76 @@ export class ProductsService {
         } finally {
             await queryRunner.release();
         }
+    }
+
+    async getInventoryDashboard(business_id: string) {
+
+        console.log("ID: ", business_id)
+
+        const inventoryStats = await this.productRepo.createQueryBuilder('product')
+            .where('product.business_id = :business_id', { business_id })
+            .select([
+                'COUNT(product.id) AS total_products',
+                'SUM(product.current_stock * product.purchase_price) AS total_value'
+            ])
+            .getRawOne();
+
+        const lowStockProducts = await this.productRepo.createQueryBuilder('product')
+            .where('product.business_id = :business_id', { business_id })
+            .andWhere('product.current_stock <= product.minimum_stock')
+            .andWhere('product.current_stock > 0') 
+            .orderBy('product.current_stock', 'ASC')
+            .limit(5)
+            .getMany();
+
+        const outOfStockProducts = await this.productRepo.count({
+            where: {
+                business: { id: business_id },
+                current_stock: 0
+            }
+        });
+
+        return {
+            total_products: Number(inventoryStats.total_products) || 0,
+            total_inventory_value: Number(inventoryStats.total_value) || 0,
+            low_stock_count: lowStockProducts.length,
+            out_of_stock_count: outOfStockProducts,
+            low_stock_items: lowStockProducts
+        };
+    }
+
+    /**
+     * Get stock movement history for a specific product
+     */
+    async getProductMovements(businessId: string, productId: string) {
+        const product = await this.productRepo.findOne({
+            where: { id: productId, business: { id: businessId } }
+        });
+
+        if (!product) {
+            throw new NotFoundException('المنتج غير موجود');
+        }
+
+        const movements = await this.dataSource.getRepository(StockMovement)
+            .find({
+                where: { product: { id: productId } },
+                order: { created_at: 'DESC' },
+            });
+
+        return {
+            product: {
+                id: product.id,
+                name: product.name,
+                current_stock: product.current_stock,
+            },
+            movements: movements.map(movement => ({
+                id: movement.id,
+                type: movement.type,
+                quantity_change: movement.quantity_change,
+                resulting_stock: movement.resulting_stock,
+                date: movement.created_at,
+                reference_id: movement.reference_id
+            }))
+        };
     }
 }

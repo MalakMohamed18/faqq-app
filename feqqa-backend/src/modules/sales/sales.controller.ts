@@ -28,7 +28,7 @@ import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 export class SalesController {
   constructor(
     private readonly salesService: SalesService,
-  ) {}
+  ) { }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
@@ -71,6 +71,22 @@ export class SalesController {
     @CurrentUser() business: JWTPayloadType,
   ) {
     return this.salesService.getTodaySales(
+      business.sub,
+    );
+  }
+
+  @Get('dashboard')
+  @ApiOperation({
+    summary: 'Get sales analytics (Top products, categories, total revenue)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Returns data for the Sales Analytics screen.',
+  })
+  async getSalesDashboard(
+    @CurrentUser() business: JWTPayloadType,
+  ) {
+    return this.salesService.getSalesDashboard(
       business.sub,
     );
   }

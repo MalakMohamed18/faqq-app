@@ -43,3 +43,9 @@ export enum PaymentStatus {
   PARTIAL = 'PARTIAL',
   UNPAID = 'UNPAID',
 }
+
+export enum InvoiceStatus {
+  PAID = 'PAID',
+  UNPAID = 'UNPAID',
+  PARTIAL = 'PARTIAL',
+}

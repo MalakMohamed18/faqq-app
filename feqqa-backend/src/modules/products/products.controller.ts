@@ -1,5 +1,5 @@
-import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, Req, HttpCode, HttpStatus, ParseUUIDPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Controller, Get, Post, Patch, Body, Param, Query, UseGuards, HttpCode, HttpStatus, ParseUUIDPipe } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery, ApiParam } from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dtos/create-product.dto';
@@ -12,7 +12,16 @@ import type { JWTPayloadType } from 'src/utils/types';
 @UseGuards(AuthGuard)
 @Controller('api/products')
 export class ProductsController {
-    constructor(private readonly productsService: ProductsService) { }
+    constructor(
+        private readonly productsService: ProductsService
+    ) { }
+
+    @Get('dashboard')
+    @ApiOperation({ summary: 'Get inventory dashboard statistics (إحصائيات المخزون)' })
+    async getInventoryDashboard(@CurrentUser() business: JWTPayloadType) {
+        console.log(business.sub);
+        return this.productsService.getInventoryDashboard(business.sub);
+    }
 
     /**
      * Create a new product for the authenticated business.
@@ -94,5 +103,15 @@ export class ProductsController {
     @ApiResponse({ status: 404, description: 'Product not found.' })
     async updateStock(@Param('id', ParseUUIDPipe) id: string, @Body('new_stock') newStock: number) {
         return this.productsService.updateStock(id, newStock);
+    }
+
+    @Get(':id/movements')
+    @ApiOperation({ summary: 'Get stock movement history for a product' })
+    @ApiParam({ name: 'id', description: 'Product ID' })
+    async getProductMovements(
+        @CurrentUser() business: JWTPayloadType,
+        @Param('id', ParseUUIDPipe) productId: string,
+    ) {
+        return this.productsService.getProductMovements(business.sub, productId);
     }
 }

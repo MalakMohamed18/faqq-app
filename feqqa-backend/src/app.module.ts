@@ -15,6 +15,7 @@ import { CustomersModule } from './modules/customers/customers.module';
 import { ExpensesModule } from './modules/expenses/expenses.module';
 import { AiDataModule } from './modules/ai-data/ai-data.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
+import { PurchasesModule } from './modules/purchases/purchases.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { UploadsModule } from './modules/uploads/uploads.module';
     ProductsModule,
     CustomersModule,
     ExpensesModule,
+    PurchasesModule,
     AiDataModule,
     UploadsModule
   ],
