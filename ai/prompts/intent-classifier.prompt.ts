@@ -67,12 +67,15 @@ Keep the product name exactly as written by the user.
 Examples:
 
 "البيبسي هبيع منه كام؟"
+
 => product = "البيبسي"
 
 "متوقع أبيع كام من Pepsi Can؟"
+
 => product = "Pepsi Can"
 
 "الطلب المتوقع على كيكة شوكليت؟"
+
 => product = "كيكة شوكليت"
 
 If no product is mentioned:
@@ -135,9 +138,16 @@ GET_TODAY_SALES
 
 Use GET_TODAY_SALES when the user asks about today's sales.
 
-Example:
+Examples:
 
 "أنا بعت كام النهارده؟"
+
+=> GET_TODAY_SALES
+
+date = "today"
+
+
+"مبيعات النهارده كام؟"
 
 => GET_TODAY_SALES
 
@@ -147,11 +157,25 @@ date = "today"
 
 GET_WEEKLY_SALES
 
-Use GET_WEEKLY_SALES when the user asks about sales during the current week.
+Use GET_WEEKLY_SALES when the user asks about the TOTAL SALES during a week.
 
-Example:
+Examples:
 
 "مبيعاتي الأسبوع ده كام؟"
+
+=> GET_WEEKLY_SALES
+
+period = "this_week"
+
+
+"بعت بكام الأسبوع ده؟"
+
+=> GET_WEEKLY_SALES
+
+period = "this_week"
+
+
+"إجمالي مبيعات الأسبوع ده كام؟"
 
 => GET_WEEKLY_SALES
 
@@ -161,11 +185,89 @@ period = "this_week"
 
 GET_TOP_PRODUCT
 
-Use GET_TOP_PRODUCT when the user asks which product sold the most.
+Use GET_TOP_PRODUCT when the user asks WHICH SINGLE PRODUCT SOLD THE MOST.
 
-Example:
+This intent is about RANKING or identifying the BEST / TOP / MOST SOLD product.
+
+IMPORTANT:
+
+Words such as:
+
+"أكتر"
+"الأكثر"
+"أعلى"
+"الأعلى مبيعًا"
+"الأكثر مبيعًا"
+"أكتر واحد"
+"أعلى منتج"
+"most"
+"top"
+"best"
+
+indicate that the user wants ONE top-ranked product.
+
+If the user asks for the MOST SOLD product, ALWAYS use:
+
+=> GET_TOP_PRODUCT
+
+The presence of a time period such as "الأسبوع ده" MUST NOT change this rule.
+
+Examples:
 
 "إيه أكتر منتج اتباع؟"
+
+=> GET_TOP_PRODUCT
+
+
+"إيه أكتر منتج بعته الأسبوع ده؟"
+
+=> GET_TOP_PRODUCT
+
+period = "this_week"
+
+
+"مين أكتر منتج اتباع الأسبوع ده؟"
+
+=> GET_TOP_PRODUCT
+
+period = "this_week"
+
+
+"إيه المنتج الأكثر مبيعًا الأسبوع ده؟"
+
+=> GET_TOP_PRODUCT
+
+period = "this_week"
+
+
+"أكتر منتج اتباع عندي إيه؟"
+
+=> GET_TOP_PRODUCT
+
+
+"إيه أعلى منتج مبيعًا؟"
+
+=> GET_TOP_PRODUCT
+
+
+"مين أكتر منتج بعته؟"
+
+=> GET_TOP_PRODUCT
+
+
+CRITICAL DISTINCTION:
+
+"أكتر منتج" = GET_TOP_PRODUCT
+
+"الأكثر مبيعًا" = GET_TOP_PRODUCT
+
+"أعلى منتج" = GET_TOP_PRODUCT
+
+"إيه المنتجات" = GET_WEEKLY_PRODUCTS
+
+The word "الأسبوع" or "الأسبوع ده" does NOT mean GET_WEEKLY_PRODUCTS by itself.
+
+If the user asks for ONE product ranked as the highest / most sold:
 
 => GET_TOP_PRODUCT
 
@@ -173,15 +275,54 @@ Example:
 
 GET_WEEKLY_PRODUCTS
 
-Use GET_WEEKLY_PRODUCTS when the user asks about the products sold during the week.
+Use GET_WEEKLY_PRODUCTS when the user asks for a LIST of products sold during a week.
 
-Example:
+This intent is about MULTIPLE products, not ranking one product.
+
+Examples:
 
 "إيه المنتجات اللي بعتها الأسبوع ده؟"
 
 => GET_WEEKLY_PRODUCTS
 
 period = "this_week"
+
+
+"إيه المنتجات اللي اتباعِت الأسبوع ده؟"
+
+=> GET_WEEKLY_PRODUCTS
+
+period = "this_week"
+
+
+"قولّي المنتجات اللي بعتها الأسبوع ده"
+
+=> GET_WEEKLY_PRODUCTS
+
+period = "this_week"
+
+
+"إيه المنتجات المباعة الأسبوع ده؟"
+
+=> GET_WEEKLY_PRODUCTS
+
+period = "this_week"
+
+
+CRITICAL DISTINCTION:
+
+"إيه المنتجات اللي بعتها الأسبوع ده؟"
+
+=> GET_WEEKLY_PRODUCTS
+
+
+BUT:
+
+"إيه أكتر منتج بعته الأسبوع ده؟"
+
+=> GET_TOP_PRODUCT
+
+Even though both questions contain "الأسبوع ده", the first asks for a LIST while the second asks for ONE TOP PRODUCT.
 
 
 
@@ -199,11 +340,21 @@ Example:
 
 GET_TOP_RECEIVABLE
 
-Use GET_TOP_RECEIVABLE when the user asks which customer owes the largest amount of money.
+Use GET_TOP_RECEIVABLE when the user asks WHICH CUSTOMER OWES THE LARGEST AMOUNT OF MONEY.
 
-Example:
+Examples:
 
 "مين عليه أكبر مبلغ؟"
+
+=> GET_TOP_RECEIVABLE
+
+
+"مين أكتر عميل عليه فلوس؟"
+
+=> GET_TOP_RECEIVABLE
+
+
+"مين أكتر واحد مديون؟"
 
 => GET_TOP_RECEIVABLE
 
@@ -211,11 +362,21 @@ Example:
 
 GET_RECEIVABLES
 
-Use GET_RECEIVABLES when the user asks which customers owe money.
+Use GET_RECEIVABLES when the user asks WHICH CUSTOMERS owe money or asks for the LIST / TOTAL of outstanding customers.
 
-Example:
+Examples:
 
 "مين العملاء اللي عليهم فلوس؟"
+
+=> GET_RECEIVABLES
+
+
+"العملاء عليهم كام فلوس؟"
+
+=> GET_RECEIVABLES
+
+
+"مين عليه فلوس؟"
 
 => GET_RECEIVABLES
 
@@ -223,11 +384,18 @@ Example:
 
 GET_MONTHLY_EXPENSES
 
-Use GET_MONTHLY_EXPENSES when the user asks about total expenses for the month.
+Use GET_MONTHLY_EXPENSES when the user asks about TOTAL expenses for the month.
 
-Example:
+Examples:
 
 "مصاريفي الشهر ده كام؟"
+
+=> GET_MONTHLY_EXPENSES
+
+period = "this_month"
+
+
+"مصروفاتي الشهر ده كام؟"
 
 => GET_MONTHLY_EXPENSES
 
@@ -237,11 +405,21 @@ period = "this_month"
 
 GET_TOP_EXPENSE
 
-Use GET_TOP_EXPENSE when the user asks about the largest or highest expense.
+Use GET_TOP_EXPENSE when the user asks about the LARGEST / HIGHEST expense.
 
-Example:
+Examples:
 
 "إيه أكتر مصروف عندي؟"
+
+=> GET_TOP_EXPENSE
+
+
+"أعلى مصروف عندي إيه؟"
+
+=> GET_TOP_EXPENSE
+
+
+"إيه أكبر مصروف؟"
 
 => GET_TOP_EXPENSE
 
@@ -257,21 +435,26 @@ Examples:
 
 => GET_BUSINESS_INSIGHT
 
+
 "إيه المشاكل اللي عندي في البيزنس؟"
 
 => GET_BUSINESS_INSIGHT
+
 
 "إيه أهم الحاجات اللي محتاجة أخد بالي منها؟"
 
 => GET_BUSINESS_INSIGHT
 
+
 "اديني ملخص عن شغلي"
 
 => GET_BUSINESS_INSIGHT
+
+
+
 GET_BUSINESS_HEALTH_SCORE
 
-Use GET_BUSINESS_HEALTH_SCORE when the user asks about the business health score,
-overall business health, or wants a score/rating for their business.
+Use GET_BUSINESS_HEALTH_SCORE when the user asks about the business health score, overall business health, or wants a score/rating for their business.
 
 Examples:
 
@@ -279,71 +462,49 @@ Examples:
 
 => GET_BUSINESS_HEALTH_SCORE
 
+
 "حالة البيزنس عندي من 100 كام؟"
 
 => GET_BUSINESS_HEALTH_SCORE
+
 
 "البيزنس بتاعي صحته عاملة إيه؟"
 
 => GET_BUSINESS_HEALTH_SCORE
 
+
 "عايز أعرف تقييم حالة شغلي"
 
 => GET_BUSINESS_HEALTH_SCORE
 
-IMPORTANT:
-
-GET_BUSINESS_INSIGHT is for general business analysis and insights.
-
-If the user explicitly asks for the business HEALTH SCORE, SCORE, or a numerical evaluation out of 100, use GET_BUSINESS_HEALTH_SCORE instead.
-
-
-
-GET_BUSINESS_HEALTH_SCORE
-
-Use GET_BUSINESS_HEALTH_SCORE when the user explicitly asks about:
-
-- health score
-- business health score
-- score of the business
-- business score
-- تقييم حالة البيزنس
-- درجة البيزنس
-- صحة البيزنس
-- مستوى صحة البيزنس
-- تقييم البيزنس من 100
-- الـ health score
-- الـ score بتاع البيزنس
-
-Examples:
 
 "الـ health score بتاع البيزنس عندي كام؟"
 
 => GET_BUSINESS_HEALTH_SCORE
 
-"الـ health score بتاعي كام؟"
-
-=> GET_BUSINESS_HEALTH_SCORE
-
-"حالة البيزنس عندي إيه والـ score كام؟"
-
-=> GET_BUSINESS_HEALTH_SCORE
 
 "تقييم البيزنس عندي كام من 100؟"
 
 => GET_BUSINESS_HEALTH_SCORE
 
-"صحة البيزنس عندي عاملة إيه؟"
-
-=> GET_BUSINESS_HEALTH_SCORE
 
 "قولي درجة البيزنس عندي"
 
 => GET_BUSINESS_HEALTH_SCORE
 
+
 IMPORTANT:
 
-If the user explicitly mentions "health score", "score", "تقييم", "درجة", or asks for a score out of 100 related to the business:
+If the user explicitly asks for:
+
+"health score"
+"score"
+"تقييم"
+"درجة"
+"صحة البيزنس"
+"تقييم البيزنس من 100"
+
+related to the business:
 
 => GET_BUSINESS_HEALTH_SCORE
 
@@ -390,7 +551,6 @@ Examples:
 
 => period = "next_month"
 
-
 If the user asks for future demand but does not mention a product:
 
 => product = null
@@ -428,7 +588,6 @@ Examples:
 
 => GET_CASH_FLOW_FORECAST
 
-
 If no period is mentioned:
 
 => period = null
@@ -442,6 +601,39 @@ Never return null for an entity when that information is explicitly present in t
 Extract entities from the user's original words.
 
 Do not invent entity values.
+
+
+
+IMPORTANT PRIORITY RULE:
+
+When multiple intents seem possible, choose the intent that matches the user's PRIMARY request.
+
+For product questions:
+
+1. If the user asks for ONE product that sold the most / best / top product:
+   => GET_TOP_PRODUCT
+
+2. If the user asks for a LIST of products sold during a period:
+   => GET_WEEKLY_PRODUCTS
+
+3. If the user asks about FUTURE demand or predicted sales for a product:
+   => GET_DEMAND_FORECAST
+
+Examples:
+
+"إيه أكتر منتج بعته الأسبوع ده؟"
+
+=> GET_TOP_PRODUCT
+
+
+"إيه المنتجات اللي بعتها الأسبوع ده؟"
+
+=> GET_WEEKLY_PRODUCTS
+
+
+"البيبسي هبيع منه كام الأسبوع الجاي؟"
+
+=> GET_DEMAND_FORECAST
 
 
 
@@ -461,8 +653,8 @@ If the message is unclear:
 }
 
 
+
 FINAL RULE:
 
 Return ONLY JSON.
-
 `;
