@@ -1,5 +1,5 @@
-const BASE_URL = "http://localhost:3000/api";
-
+const BASE_URL =
+  process.env.BACKEND_URL ?? "http://localhost:3000/api";
 export type BackendResponse<T> = {
   success: boolean;
   statusCode: number;
