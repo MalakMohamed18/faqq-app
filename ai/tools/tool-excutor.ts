@@ -1,9 +1,9 @@
 import {
   TOOL_REGISTRY,
   type ToolName,
-} from "./tool-registry";
+} from "./tool-registry.js";
 
-import type { IntentResult } from "../schemas/intent.schema";
+import type { IntentResult } from "../schemas/intent.schema.js";
 
 export async function executeTool(
   toolName: ToolName,

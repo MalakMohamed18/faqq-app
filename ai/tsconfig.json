@@ -3,13 +3,12 @@
     "target": "ES2022",
     "module": "CommonJS",
     "moduleResolution": "Node",
-    "strict": true,
+    "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
-    "types": ["node"]
+    "outDir": "dist"
   },
   "include": ["**/*.ts"],
-  "exclude": ["node_modules", "ocr/test-data/generated-pages"]
+  "exclude": ["node_modules", "dist"]
 }
