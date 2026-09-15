@@ -1,21 +1,12 @@
 import { Injectable } from '@nestjs/common';
-
 import { InjectRepository } from '@nestjs/typeorm';
-
 import { Repository, Between } from 'typeorm';
-
 import { Sale } from '../sales/entities/sale.entity';
-
 import { ProductsService } from '../products/products.service';
-
 import { CustomersService } from '../customers/customers.service';
-
 import { ExpensesService } from '../expenses/expenses.service';
-
 import { GetSalesQueryDto } from './dtos/get-sales-query.dto';
-
 import { GetExpensesQueryDto } from './dtos/get-expenses-query.dto';
-
 
 function formatLocalDate(date: Date): string {
     const year = date.getFullYear();
@@ -32,22 +23,17 @@ export class AiDataService {
     constructor(
         @InjectRepository(Sale)
         private readonly saleRepo: Repository<Sale>,
-
         private readonly productsService: ProductsService,
-
         private readonly customersService: CustomersService,
-
         private readonly expensesService: ExpensesService,
-    ) {}
+    ) { }
 
 
     async getSalesData(
         businessId: string,
         query: GetSalesQueryDto,
     ) {
-
         const todayStr = formatLocalDate(new Date());
-
         const startDate = query.start_date
             ? new Date(`${query.start_date}T00:00:00`)
             : new Date(`${todayStr}T00:00:00`);
@@ -55,7 +41,6 @@ export class AiDataService {
         const endDate = query.end_date
             ? new Date(`${query.end_date}T23:59:59.999`)
             : new Date(`${todayStr}T23:59:59.999`);
-
 
         const sales = await this.saleRepo.find({
             where: {
@@ -75,7 +60,6 @@ export class AiDataService {
                 },
             },
         });
-
 
         const totalSales = sales.reduce(
             (sum, sale) =>
@@ -331,7 +315,7 @@ export class AiDataService {
         const weeklyExpenseEstimate =
             days > 0
                 ? totalExpenses /
-                  (days / 7)
+                (days / 7)
                 : 0;
 
 

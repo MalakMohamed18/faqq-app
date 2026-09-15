@@ -16,6 +16,7 @@ import { ExpensesModule } from './modules/expenses/expenses.module';
 import { AiDataModule } from './modules/ai-data/ai-data.module';
 import { UploadsModule } from './modules/uploads/uploads.module';
 import { PurchasesModule } from './modules/purchases/purchases.module';
+import { AiChatModule } from './modules/ai-chat/ai-chat.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { PurchasesModule } from './modules/purchases/purchases.module';
     ExpensesModule,
     PurchasesModule,
     AiDataModule,
+    AiChatModule,
     UploadsModule
   ],
   controllers: [AppController],

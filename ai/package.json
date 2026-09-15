@@ -1,0 +1,25 @@
+{
+  "name": "faqqa-ai",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:intent": "tsx test-intent.ts",
+    "test:all": "tsx test-all-intents.ts",
+    "test:real": "tsx test-feqqa-ai.ts"
+  },
+  "dependencies": {
+    "ollama": "^0.5.17",
+    "pdf-parse": "^1.1.1",
+    "pdf-poppler": "^0.2.1",
+    "sharp": "^0.33.5",
+    "tesseract.js": "^6.0.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

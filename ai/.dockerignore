@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log*
+.git
+.gitignore
+ocr/test-data/generated-pages
+*.pdf
+*.png
+*.jpg
+*.jpeg
