@@ -5,11 +5,18 @@ import { executeTool } from "./tools/tool-excutor";
 import { generateResponse } from "./response-generator";
 import { generateRecommendations } from "./recommendations/recommendation-engine";
 import type { Recommendation } from "./recommendations/recommendation.types";
-
+import { getCasualResponse } from "./casual-responses";
 export async function runFeqqaAI(
 userMessage: string,
 accessToken?: string
 ) {
+    const casualResponse = getCasualResponse(userMessage);
+
+if (casualResponse) {
+  return {
+    response: casualResponse,
+  };
+}
 const intentResult = await classifyIntent(userMessage);
 
 const confidence = checkConfidence(intentResult);
