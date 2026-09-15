@@ -1,6 +1,23 @@
 node_modules/
+
 *.traineddata
+
 .env
 
 voice/
 
+# Voice environment
+voice-new/.venv/
+
+# Voice caches
+voice-new/.cache/
+
+# Generated audio
+voice-new/*.wav
+
+# Local model files
+voice-new/voices/*.pt
+voice-new/*.pth
+# Python cache
+voice-new/kemetone/__pycache__/
+*.pyc
