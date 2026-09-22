@@ -370,7 +370,7 @@ npm run format       # Format source and test files
 - [Root project overview](../README.md)
 - [AI architecture and backend contract](../ai/Faqqa-AI-Documentation.md)
 - [AI specification](../ai/feqqa_ai_spec.md)
-- [Swagger UI](http://localhost:3000/api/docs) when the backend is running
+- [Swagger UI](https://aivora-backend-zws5.onrender.com/api/docs)
 
 ## Team
 
