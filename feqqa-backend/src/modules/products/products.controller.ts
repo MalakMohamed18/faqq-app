@@ -19,7 +19,6 @@ export class ProductsController {
     @Get('dashboard')
     @ApiOperation({ summary: 'Get inventory dashboard statistics (إحصائيات المخزون)' })
     async getInventoryDashboard(@CurrentUser() business: JWTPayloadType) {
-        console.log(business.sub);
         return this.productsService.getInventoryDashboard(business.sub);
     }
 

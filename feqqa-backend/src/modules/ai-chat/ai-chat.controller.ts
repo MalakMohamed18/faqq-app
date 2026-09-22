@@ -1,4 +1,4 @@
-import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Post, Body, UseGuards, HttpCode, HttpStatus, UseInterceptors, UploadedFile, Headers } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from 'src/common/guards/auth.guard';
@@ -21,8 +21,9 @@ export class AiChatController {
     async chat(
         @CurrentUser() business: JWTPayloadType,
         @Body() dto: ChatMessageDto,
+        @Headers('authorization') authHeader: string,
     ) {
-        return this.aiChatService.processChat(business.sub, dto.message);
+        return this.aiChatService.processChat(business.sub, dto.message, authHeader);
     }
 
     @Post('voice')
@@ -46,8 +47,9 @@ export class AiChatController {
     async chatWithVoice(
         @CurrentUser() business: JWTPayloadType,
         @UploadedFile() audioFile: any,
+        @Headers('authorization') authHeader: string,
     ) {
-        return this.aiChatService.processVoiceChat(business.sub, audioFile);
+        return this.aiChatService.processVoiceChat(business.sub, audioFile, authHeader);
     }
 
     @Post('image')
@@ -76,8 +78,9 @@ export class AiChatController {
     async chatWithImage(
         @CurrentUser() business: JWTPayloadType,
         @UploadedFile() imageFile: any,
+        @Headers('authorization') authHeader: string,
         @Body('message') message?: string,
     ) {
-        return this.aiChatService.processImageChat(business.sub, imageFile, message);
+        return this.aiChatService.processImageChat(business.sub, imageFile, message, authHeader);
     }
 }
