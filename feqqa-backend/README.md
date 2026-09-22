@@ -251,6 +251,78 @@ Default URLs:
 - API: `http://localhost:3000`
 - Swagger UI: `http://localhost:3000/api/docs`
 
+## Supabase Database
+
+Faqqa Backend uses Supabase as a managed PostgreSQL provider through TypeORM. The application does not require the Supabase JavaScript client for database access; it connects through the PostgreSQL driver using the Supabase connection string.
+
+### Create the database
+
+1. Create a project from the [Supabase Dashboard](https://supabase.com/dashboard).
+2. Open **Project Settings -> Database**.
+3. Copy a PostgreSQL connection string and use the pooler connection when the deployment platform has connection limits or requires IPv4 compatibility.
+4. Set the connection string as `DATABASE_URL` in the backend environment.
+
+```env
+DATABASE_URL=postgresql://postgres.[project-ref]:[password]@[pooler-host]:6543/postgres?sslmode=require
+```
+
+The current TypeORM configuration enables SSL with `rejectUnauthorized: false`, which is compatible with Supabase-hosted PostgreSQL. Do not commit the connection string or database password.
+
+### Supabase notes
+
+- Use the Supabase **Transaction pooler** for short-lived or serverless-style deployments and the **Session pooler** when session-level PostgreSQL behavior is required.
+- Keep `autoLoadEntities: true` enabled for the current NestJS module structure.
+- `synchronize: true` is currently enabled for development. Disable it and use reviewed migrations before production data is deployed.
+- Supabase Auth is not required by this backend; authentication is currently handled by the NestJS JWT module.
+
+## Deploying the Backend on Render
+
+Render can host the NestJS API as a Web Service while Supabase provides the PostgreSQL database.
+
+### Render service configuration
+
+Create a **Web Service** connected to the repository with these settings:
+
+| Setting | Value |
+| --- | --- |
+| Root Directory | `feqqa-backend` |
+| Runtime | `Node` |
+| Build Command | `npm ci && npm run build` |
+| Start Command | `npm run start:prod` |
+| Health Check Path | `/` |
+| Node Version | `20` or newer |
+
+Render automatically provides the `PORT` variable. The application listens on `process.env.PORT` and falls back to port `3000` for local development.
+
+### Render environment variables
+
+Add the following values in the Render service's **Environment** settings:
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://postgres.[project-ref]:[password]@[pooler-host]:6543/postgres?sslmode=require
+JWT_SECRET=use-a-long-random-production-secret
+AI_SERVICE_URL=https://your-ai-service.onrender.com
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USER=your-smtp-user
+MAIL_PASS=your-smtp-password
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+### Deployment checklist
+
+- Confirm the Render service root is `feqqa-backend`, not the monorepo root.
+- Verify the Supabase connection string uses `sslmode=require` and the correct pooler host and port.
+- Set `AI_SERVICE_URL` to a publicly reachable AI service URL; `localhost` only works when both services run in the same environment.
+- Configure SMTP and Cloudinary secrets in Render rather than committing them to `.env`.
+- After deployment, verify `/` and `/api/docs`, then test an authenticated endpoint with a real JWT.
+- Review database migrations and disable TypeORM synchronization before production use.
+
+The deployed API is typically available at a URL such as `https://your-service.onrender.com`, with Swagger at `https://your-service.onrender.com/api/docs`.
+
 ## AI Integration
 
 The backend owns authentication and business context. The AI data module exposes controlled, verified data for the assistant instead of giving the model direct database access.
@@ -297,7 +369,7 @@ npm run format       # Format source and test files
 - [Root project overview](../README.md)
 - [AI architecture and backend contract](../ai/Faqqa-AI-Documentation.md)
 - [AI specification](../ai/feqqa_ai_spec.md)
-- [Swagger UI](http://localhost:3000/api/docs) when the backend is running
+- [Swagger UI](https://aivora-backend-zws5.onrender.com/api/docs)
 
 ## Team
 
