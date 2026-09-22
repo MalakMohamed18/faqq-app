@@ -133,8 +133,6 @@ export class ProductsService {
 
     async getInventoryDashboard(business_id: string) {
 
-        console.log("ID: ", business_id)
-
         const inventoryStats = await this.productRepo.createQueryBuilder('product')
             .where('product.business_id = :business_id', { business_id })
             .select([
@@ -146,7 +144,7 @@ export class ProductsService {
         const lowStockProducts = await this.productRepo.createQueryBuilder('product')
             .where('product.business_id = :business_id', { business_id })
             .andWhere('product.current_stock <= product.minimum_stock')
-            .andWhere('product.current_stock > 0') 
+            .andWhere('product.current_stock > 0')
             .orderBy('product.current_stock', 'ASC')
             .limit(5)
             .getMany();
