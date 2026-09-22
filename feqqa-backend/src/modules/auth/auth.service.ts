@@ -1,6 +1,13 @@
-import { Injectable, BadRequestException, UnauthorizedException, ForbiddenException } from '@nestjs/common';
+import {
+    Injectable,
+    BadRequestException,
+    UnauthorizedException,
+    ForbiddenException,
+    NotFoundException
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
+import { randomInt } from 'crypto';
 import { BusinessesService } from '../businesses/businesses.service';
 import { RegisterDto } from './dtos/register.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
@@ -8,35 +15,36 @@ import { Business } from '../businesses/entities/business.entity';
 import { LoginDto } from './dtos/login.dto';
 import { JWTPayloadType } from 'src/utils/types';
 import { EmailService } from '../notifications/email.service';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
 
 @Injectable()
 export class AuthService {
+    private readonly OTP_EXPIRATION_MINUTES = 10;
+
     constructor(
         private readonly jwtService: JwtService,
         private readonly businessesService: BusinessesService,
         private readonly emailService: EmailService
     ) { }
 
-
     public async register(registerDto: RegisterDto) {
-        // Generate OTP and set expiration time (10 minutes from now)
-        const otp = this.generateOtp();
-        const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+        const otp = this.generateSecureOtp();
+        const otpExpires = this.getOtpExpirationTime(); // <-- 4. DRY code
 
-        // Create the business account with the OTP and expiration time
         const business = await this.businessesService.createBusiness(registerDto, {
             otp,
             expires: otpExpires,
         });
 
-        // Send OTP process
-        await this.emailService.sendOtpEmail(business.email, otp);
+        this.emailService.sendOtpEmail(business.email, otp).catch(err =>
+            console.error(`Failed to send OTP to ${business.email}`, err)
+        );
 
         return {
             message: 'Account created successfully. Please activate your email',
             business_id: business.id,
             email: business.email,
-            dev_otp: otp,
+            dev_otp: process.env.NODE_ENV !== 'production' ? otp : undefined,
         };
     }
 
@@ -54,20 +62,18 @@ export class AuthService {
         }
 
         if (!business.is_email_verified) {
-            const newOtp = this.generateOtp();
-            const otpExpires = new Date(Date.now() + 10 * 60 * 1000);
+            const newOtp = this.generateSecureOtp();
+            const otpExpires = this.getOtpExpirationTime();
 
-            // Update OTP
             await this.businessesService.updateOtp(business.id, newOtp, otpExpires);
 
-            // Send new OTP
-            await this.emailService.sendOtpEmail(business.email, newOtp);
+            this.emailService.sendOtpEmail(business.email, newOtp).catch(console.error);
 
             throw new ForbiddenException({
                 statusCode: 403,
                 message: 'Account email is not verified. A new OTP has been generated.',
-                code: 'EMIAL_NOT_VERIFIED',
-                dev_otp: newOtp,
+                code: 'EMAIL_NOT_VERIFIED',
+                dev_otp: process.env.NODE_ENV !== 'production' ? newOtp : undefined,
             });
         }
 
@@ -85,8 +91,59 @@ export class AuthService {
         return this.generateAuthResponse(updatedBusiness);
     }
 
-    private generateOtp(): string {
-        return Math.floor(100000 + Math.random() * 900000).toString();
+    public async resendVerificationOtp(email: string) {
+        const business = await this.businessesService.findByPhoneOrEmail(email);
+        if (!business) throw new NotFoundException('الحساب غير موجود');
+        if (business.is_email_verified) throw new BadRequestException('الحساب مفعل بالفعل');
+
+        const newOtp = this.generateSecureOtp();
+        const otpExpires = this.getOtpExpirationTime();
+
+        await this.businessesService.updateOtp(business.id, newOtp, otpExpires);
+        this.emailService.sendOtpEmail(business.email, newOtp).catch(console.error);
+
+        return { message: 'تم إرسال رمز تحقق جديد بنجاح' };
+    }
+
+    public async forgotPassword(email: string) {
+        const business = await this.businessesService.findByPhoneOrEmail(email);
+        if (!business) throw new NotFoundException('الحساب غير موجود');
+
+        const resetOtp = this.generateSecureOtp();
+        const otpExpires = this.getOtpExpirationTime();
+
+        await this.businessesService.updateResetPasswordOtp(business.id, resetOtp, otpExpires);
+        this.emailService.sendOtpEmail(business.email, resetOtp).catch(console.error);
+
+        return { message: 'تم إرسال رمز إعادة تعيين كلمة المرور' };
+    }
+
+    public async resetPassword(resetPasswordDto: ResetPasswordDto) {
+        const { email, otp, newPassword } = resetPasswordDto;
+        const business = await this.businessesService.findByPhoneOrEmail(email);
+
+        if (!business) throw new BadRequestException('البيانات غير صحيحة');
+
+        const isExpired = new Date() > new Date(business.reset_password_expires);
+        if (business.reset_password_otp !== otp || isExpired) {
+            throw new BadRequestException('رمز التحقق غير صحيح أو انتهت صلاحيته');
+        }
+
+        const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+        await this.businessesService.updatePasswordAndClearOtp(business.id, hashedPassword);
+
+        return { message: 'تم تغيير كلمة المرور بنجاح' };
+    }
+
+    // Generates a cryptographically secure 6-digit OTP
+    private generateSecureOtp(): string {
+        return randomInt(100000, 999999).toString();
+    }
+
+    // Centralizes the math for expiration times
+    private getOtpExpirationTime(): Date {
+        return new Date(Date.now() + this.OTP_EXPIRATION_MINUTES * 60 * 1000);
     }
 
     private validateOtpProcess(business: Business, otp: string): void {
@@ -98,7 +155,6 @@ export class AuthService {
             throw new BadRequestException('تم التفعيل بالفعل مسبقاً');
         }
 
-        // Check if the OTP matches and is not expired
         const isExpired = new Date() > new Date(business.email_verification_expires);
         if (business.email_verification_otp !== otp || isExpired) {
             throw new BadRequestException('رمز التحقق غير صحيح أو انتهت صلاحيته');
@@ -113,10 +169,8 @@ export class AuthService {
             onboardingStatus: business.onboarding_status
         };
 
-        const accessToken = this.jwtService.sign(payload);
-
         return {
-            accessToken,
+            accessToken: this.jwtService.sign(payload),
             business: {
                 id: business.id,
                 name: business.business_name,

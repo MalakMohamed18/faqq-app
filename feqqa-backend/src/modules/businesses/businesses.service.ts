@@ -78,7 +78,7 @@ export class BusinessesService {
      * Mark the phone number of a business as verified and clear the OTP and expiration fields.
      * Move to the next step is Payment Step
      */
-    async markEmailAsVerified(businessId: string) {
+    public async markEmailAsVerified(businessId: string) {
         await this.businessesRepository.update(businessId, {
             is_email_verified: true,
             email_verification_otp: null,
@@ -92,7 +92,7 @@ export class BusinessesService {
     /**
      * This Function use while user create account
      */
-    async updateOnboardingStatus(businessId: string, status: OnboardingStatus) {
+    public async updateOnboardingStatus(businessId: string, status: OnboardingStatus) {
         await this.businessesRepository.update(businessId, {
             onboarding_status: status,
         });
@@ -108,5 +108,20 @@ export class BusinessesService {
             throw new NotFoundException('Account does not exist');
         }
         return business;
+    }
+
+    public async updateResetPasswordOtp(id: string, otp: string, expires: Date): Promise<void> {
+        await this.businessesRepository.update(id, {
+            reset_password_otp: otp,
+            reset_password_expires: expires,
+        });
+    }
+
+    public async updatePasswordAndClearOtp(id: string, newPasswordHash: string): Promise<void> {
+        await this.businessesRepository.update(id, {
+            password_hash: newPasswordHash,
+            reset_password_otp: null,
+            reset_password_expires: null,
+        });
     }
 }
