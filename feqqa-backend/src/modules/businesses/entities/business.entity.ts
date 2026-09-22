@@ -40,6 +40,12 @@ export class Business {
     @Column({ type: 'timestamp', nullable: true })
     email_verification_expires: Date;
 
+    @Column({ nullable: true })
+    reset_password_otp: string;
+
+    @Column({ type: 'timestamp', nullable: true })
+    reset_password_expires: Date;
+
     @Column({ type: 'enum', enum: OnboardingStatus, default: OnboardingStatus.VERIFY_EMAIL })
     onboarding_status: OnboardingStatus;
 

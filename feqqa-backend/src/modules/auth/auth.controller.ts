@@ -4,6 +4,8 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dtos/register.dto';
 import { VerifyOtpDto } from './dtos/verify-otp.dto';
 import { LoginDto } from './dtos/login.dto';
+import { ResetPasswordDto } from './dtos/reset-password.dto';
+import { AuthEmailDto } from './dtos/forgot-password.dto';
 
 @ApiTags('Auth')
 @Controller('api/auth')
@@ -40,5 +42,36 @@ export class AuthController {
     @ApiResponse({ status: 401, description: 'Invalid credentials or unverified account' })
     async login(@Body() loginDto: LoginDto) {
         return this.authService.login(loginDto);
+    }
+
+    // ~/api/auth/resend-otp
+    @Post('resend-otp')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Resend email verification OTP' })
+    @ApiResponse({ status: 200, description: 'New verification OTP sent successfully' })
+    @ApiResponse({ status: 400, description: 'Account is already verified' })
+    @ApiResponse({ status: 404, description: 'Business account not found' })
+    async resendOtp(@Body() authEmailDto: AuthEmailDto) {
+        return this.authService.resendVerificationOtp(authEmailDto.email);
+    }
+
+    // ~/api/auth/forgot-password
+    @Post('forgot-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Request an OTP to reset password' })
+    @ApiResponse({ status: 200, description: 'Password reset OTP sent successfully' })
+    @ApiResponse({ status: 404, description: 'Business account not found' })
+    async forgotPassword(@Body() authEmailDto: AuthEmailDto) {
+        return this.authService.forgotPassword(authEmailDto.email);
+    }
+
+    // ~/api/auth/reset-password
+    @Post('reset-password')
+    @HttpCode(HttpStatus.OK)
+    @ApiOperation({ summary: 'Reset password using OTP' })
+    @ApiResponse({ status: 200, description: 'Password changed successfully' })
+    @ApiResponse({ status: 400, description: 'Invalid or expired OTP' })
+    async resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+        return this.authService.resetPassword(resetPasswordDto);
     }
 }
