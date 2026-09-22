@@ -251,6 +251,79 @@ Default URLs:
 - API: `http://localhost:3000`
 - Swagger UI: `http://localhost:3000/api/docs`
 
+## Supabase Database
+
+Faqqa Backend uses Supabase as a managed PostgreSQL provider through TypeORM. The backend connects with the PostgreSQL driver and `DATABASE_URL`; the Supabase JavaScript client is not required for database access.
+
+### Configure Supabase
+
+1. Create a project from the [Supabase Dashboard](https://supabase.com/dashboard).
+2. Open **Project Settings -> Database**.
+3. Copy the PostgreSQL connection string. Prefer the pooler connection when the hosting platform has connection limits or requires IPv4 compatibility.
+4. Set the connection string as `DATABASE_URL` in the backend environment.
+
+```env
+DATABASE_URL=postgresql://postgres.[project-ref]:[password]@[pooler-host]:6543/postgres?sslmode=require
+```
+
+The current TypeORM configuration enables SSL with `rejectUnauthorized: false`, which is compatible with Supabase-hosted PostgreSQL. Never commit this connection string or the database password.
+
+### Supabase notes
+
+- Use the **Transaction pooler** for short-lived or serverless-style deployments.
+- Use the **Session pooler** when session-level PostgreSQL behavior is required.
+- `autoLoadEntities: true` matches the current NestJS module structure.
+- `synchronize: true` is currently enabled for development. Disable it and use reviewed migrations before production.
+- Authentication is handled by the NestJS JWT module; Supabase Auth is not required by this backend.
+
+## Deploying on Render
+
+Render can host the NestJS API as a Web Service while Supabase provides the PostgreSQL database.
+
+### Render service configuration
+
+Create a **Web Service** connected to this repository with the following settings:
+
+| Setting | Value |
+| --- | --- |
+| Root Directory | `feqqa-backend` |
+| Runtime | `Node` |
+| Build Command | `npm ci && npm run build` |
+| Start Command | `npm run start:prod` |
+| Health Check Path | `/` |
+| Node Version | `20` or newer |
+
+Render provides the `PORT` environment variable automatically. The application listens on `process.env.PORT` and falls back to port `3000` locally.
+
+### Render environment variables
+
+Add these variables in the Render service's **Environment** settings:
+
+```env
+NODE_ENV=production
+DATABASE_URL=postgresql://postgres.[project-ref]:[password]@[pooler-host]:6543/postgres?sslmode=require
+JWT_SECRET=use-a-long-random-production-secret
+AI_SERVICE_URL=https://your-ai-service.onrender.com
+MAIL_HOST=your-smtp-host
+MAIL_PORT=587
+MAIL_USER=your-smtp-user
+MAIL_PASS=your-smtp-password
+CLOUDINARY_CLOUD_NAME=your-cloud-name
+CLOUDINARY_API_KEY=your-api-key
+CLOUDINARY_API_SECRET=your-api-secret
+```
+
+### Deployment checklist
+
+- Set the Render root directory to `feqqa-backend`, not the monorepo root.
+- Verify that the Supabase URL uses `sslmode=require` and the correct pooler host and port.
+- Set `AI_SERVICE_URL` to a publicly reachable AI service URL; `localhost` only works when both services share the same environment.
+- Store SMTP, Cloudinary, JWT, and database secrets in Render Environment settings.
+- After deployment, verify `/`, `/api/docs`, and an authenticated API endpoint.
+- Disable TypeORM synchronization and use migrations before production data is deployed.
+
+The deployed API is typically available at `https://your-service.onrender.com`, with Swagger at `https://your-service.onrender.com/api/docs`.
+
 ## AI Integration
 
 The backend owns authentication and business context. The AI data module exposes controlled, verified data for the assistant instead of giving the model direct database access.
